@@ -1,0 +1,6 @@
+{
+  "name": "SJKC Ladang Grisek Recycling",
+  "description": "新廊华小校园环保回收计划与碳足迹加扣减积分管理平台 | Recycling and Carbon Penalty Grade System for SJK (C) Ladang Grisek",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
