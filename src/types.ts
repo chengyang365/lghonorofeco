@@ -138,4 +138,4 @@ export const getTreeEvolution = (totalWeight: number, lang: 'ms' | 'zh' = 'ms'):
     return { icon: '🌰', label: 'Biji Benih Lestari' };
   }
 };
-export const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbysmaPGB68EXT-9PSXtk-PuPVZjNWLJhpLb28uLpfKItzo4k453qtA4OFgwMMMnHEE-/exec";
+export const GOOGLE_SCRIPT_URL = "/api/gsheet";

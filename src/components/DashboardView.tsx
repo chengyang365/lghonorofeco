@@ -47,21 +47,33 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const fetchRealtimeData = async () => {
     setIsRefreshing(true);
     try {
-      const scriptUrl = "https://script.google.com/macros/s/AKfycbysmaPGB68EXT-9PSXtk-PuPVZjNWLJhpLb28uLpfKItzo4k453qtA4OFgwMMMnHEE-/exec";
+      const scriptUrl = "/api/gsheet";
       const [entriesRes, studentsRes] = await Promise.all([
         fetch(scriptUrl + '?action=getEntries'),
         fetch(scriptUrl + '?action=getStudents')
       ]);
+
+      if (!entriesRes.ok || !studentsRes.ok) {
+        throw new Error(`HTTP ${entriesRes.status}/${studentsRes.status}`);
+      }
+
+      const contentTypeEntries = entriesRes.headers.get("content-type") || "";
+      const contentTypeStudents = studentsRes.headers.get("content-type") || "";
+      if (!contentTypeEntries.includes("application/json") || !contentTypeStudents.includes("application/json")) {
+        throw new Error("Received non-JSON content");
+      }
+
       const entriesJson = await entriesRes.json();
       const studentsJson = await studentsRes.json();
-      if (Array.isArray(entriesJson.data)) {
+
+      if (entriesJson && entriesJson.status === "success" && Array.isArray(entriesJson.data)) {
         setLocalEntries(entriesJson.data.map((e: any) => ({ ...e, weight: Number(e.weight) || 0 })));
       }
-      if (Array.isArray(studentsJson.data)) {
+      if (studentsJson && studentsJson.status === "success" && Array.isArray(studentsJson.data)) {
         setLocalStudents(studentsJson.data);
       }
-    } catch (err) {
-      console.error("Failed to fetch real-time data in DashboardView:", err);
+    } catch (err: any) {
+      console.warn("Failed to fetch real-time data in DashboardView:", err.message || err);
     } finally {
       setIsRefreshing(false);
     }
@@ -638,169 +650,157 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
-      {/* Real-time Carbon Emission Reduction Benefit Panel (Full-Width Eco-Sustained Layout, No Dial Gauge) */}
-      {dashboardViewMode === 'overall' && (() => {
-        const schoolTotalCarbon = stats.grandTotal * 2.87;
-
-        return (
-          <div className="bg-white dark:bg-[#091526]/85 rounded-3xl p-6 shadow-md border border-stone-200/60 dark:border-[#d4af37]/35 animate-fade-in" id="realtime-carbon-benefit-panel">
-            <div className="flex flex-col gap-6">
-              {/* Header section with live counter */}
-              <div className="bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent dark:from-emerald-950/20 p-5 rounded-2xl border border-emerald-500/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div className="text-left">
-                  <div className="flex items-center gap-2">
-                    <span className="p-1 px-2 rounded-md bg-emerald-150 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-400 font-black text-[9px] uppercase tracking-wider">
-                      Live / Real-time
-                    </span>
-                    <h4 className="font-extrabold text-[#059669] dark:text-[#34d399] text-base uppercase tracking-tight">
-                      {language === 'zh' ? '新廊华小绿色碳减排实时量' : 'Pengurangan Karbon SJKC Ladang Grisek'}
-                    </h4>
-                  </div>
-                  <p className="text-[11px] text-stone-500 dark:text-stone-400 font-bold mt-1 max-w-xl">
-                    {language === 'zh' ? '环保即减碳。根据新廊华小生态科技测算，每回收 1 KG 废弃物折合减少约 2.87 KG 碳排放，数据同步云端。' : 'Kitar semula mengurangkan karbon. Setiap 1 KG dikitar semula mengurangkan 2.87 KG pelepasan karbon. Data disegerakkan ke awan.'}
-                  </p>
-                </div>
-                {/* Animated Real-time running tick up */}
-                <div className="flex items-baseline gap-1 select-none font-sans shrink-0 bg-white dark:bg-stone-950 px-4 py-2 border border-stone-204/50 dark:border-stone-850 rounded-xl shadow-inner">
-                  <span className="text-3xl sm:text-4.5xl font-black font-mono tracking-tight text-emerald-600 dark:text-emerald-450 animate-pulse">
-                    {animatedCarbon.toFixed(2)}
-                  </span>
-                  <span className="text-xs font-black text-stone-550 dark:text-stone-350">kg CO₂e</span>
-                </div>
-              </div>
-
-              {/* Educational Ecoliteracy conversions */}
-              <div className="space-y-4 text-left">
-                <div className="text-[11px] font-black text-emerald-700 dark:text-emerald-400 tracking-wider uppercase flex items-center gap-1.5 select-none">
-                  <Activity size={14} className="text-emerald-500" />
-                  <span>{language === 'zh' ? '💡 碳足迹换算为直观环保绿意效益' : '💡 Tafsiran Faedah Kelestarian Positif'}</span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {/* Tree carbon sequestration equivalent */}
-                  <div className="bg-stone-50 dark:bg-stone-950/40 border border-stone-150 dark:border-stone-850 p-4 rounded-2xl flex items-center gap-3 hover:scale-[1.01] transition-transform">
-                    <span className="text-3xl shrink-0">🌲</span>
-                    <div className="min-w-0">
-                      <div className="text-[10px] font-bold text-stone-400 leading-none">
-                        {language === 'zh' ? '相当于种植绿树' : 'Pokok Ditanam'}
-                      </div>
-                      <div className="text-lg font-black text-stone-800 dark:text-stone-150 font-mono mt-1.5 leading-none">
-                        {(schoolTotalCarbon / 22).toFixed(1)}{' '}
-                        <span className="text-xs font-bold text-stone-450">{language === 'zh' ? '棵' : 'batang'}</span>
-                      </div>
-                      <p className="text-[8px] text-stone-400 mt-1 leading-tight">
-                        {language === 'zh' ? '吸收1年等量二氧化碳' : 'Menyerap karbon setahun'}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Auto miles avoided */}
-                  <div className="bg-stone-50 dark:bg-stone-950/40 border border-stone-150 dark:border-stone-850 p-4 rounded-2xl flex items-center gap-3 hover:scale-[1.01] transition-transform">
-                    <span className="text-3xl shrink-0">🚗</span>
-                    <div className="min-w-0">
-                      <div className="text-[10px] font-bold text-stone-400 leading-none">
-                        {language === 'zh' ? '减少乘车公里' : 'KM Panduan Dikurangkan'}
-                      </div>
-                      <div className="text-lg font-black text-stone-800 dark:text-stone-150 font-mono mt-1.5 leading-none">
-                        {(schoolTotalCarbon / 0.12).toFixed(0)}{' '}
-                        <span className="text-xs font-bold text-stone-450">KM</span>
-                      </div>
-                      <p className="text-[8px] text-stone-400 mt-1 leading-tight">
-                        {language === 'zh' ? '自驾小客车碳排量等值' : 'Pelepasan kereta kenderaan'}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* KWh energy savings */}
-                  <div className="bg-stone-50 dark:bg-stone-950/40 border border-stone-150 dark:border-stone-850 p-4 rounded-2xl flex items-center gap-3 hover:scale-[1.01] transition-transform">
-                    <span className="text-3xl shrink-0">💡</span>
-                    <div className="min-w-0">
-                      <div className="text-[10px] font-bold text-stone-400 leading-none">
-                        {language === 'zh' ? '节省家庭电量' : 'Tenaga Elektrik Dijimat'}
-                      </div>
-                      <div className="text-lg font-black text-stone-800 dark:text-stone-150 font-mono mt-1.5 leading-none">
-                        {(schoolTotalCarbon / 0.52).toFixed(0)}{' '}
-                        <span className="text-xs font-bold text-stone-450">{language === 'zh' ? '度' : 'kWh'}</span>
-                      </div>
-                      <p className="text-[8px] text-stone-400 mt-1 leading-tight">
-                        {language === 'zh' ? '减少火力发电所致能耗' : 'Kurangkan penggunaan arang batu'}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Water bottle saver */}
-                  <div className="bg-stone-50 dark:bg-stone-950/40 border border-stone-150 dark:border-stone-850 p-4 rounded-2xl flex items-center gap-3 hover:scale-[1.01] transition-transform">
-                    <span className="text-3xl shrink-0">🥤</span>
-                    <div className="min-w-0">
-                      <div className="text-[10px] font-bold text-stone-400 leading-none">
-                        {language === 'zh' ? '塑料直饮水瓶' : 'Botol Plastik Diselamatkan'}
-                      </div>
-                      <div className="text-lg font-black text-stone-800 dark:text-stone-150 font-mono mt-1.5 leading-none">
-                        {(stats.grandTotal * 12.5).toFixed(0)}{' '}
-                        <span className="text-xs font-bold text-stone-450">{language === 'zh' ? '个' : 'botol'}</span>
-                      </div>
-                      <p className="text-[8px] text-stone-400 mt-1 leading-tight">
-                        {language === 'zh' ? '源头减少塑料等固废污染' : 'Kurangkan pencemaran plastik'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-extrabold italic bg-emerald-500/5 p-3 rounded-xl border border-emerald-500/10 text-center uppercase tracking-wide">
-                {language === 'zh' ? '🍀 新廊华小环保小卫士温馨提示：低碳在于生活中点滴小事的汇溪成海，每累计回收 1KG 开辟新荣耀，低碳未来由我们做主！' : '🍀 Wira Lestari SJKC Ladang Grisek: Amalan sifar karbon bermula dengan langkah kecil. Setiap 1KG kita kitar semula, kita menyelamatkan masa depan bumi!'}
-              </div>
-            </div>
-          </div>
-        );
-      })()}
-
-      {/* Grade Level Distribution Bar Chart */}
+      {/* 2-Column Grid for Carbon Benefit Panel & Grade Distribution Chart */}
       {dashboardViewMode === 'overall' && (
-        <div className="bg-white dark:bg-[#091526]/85 rounded-3xl p-6 shadow-md border border-stone-200/60 dark:border-[#d4af37]/35 animate-fade-in mb-6">
-          <div className="flex flex-col gap-4">
-            <div className="text-left">
-              <h4 className="font-extrabold text-stone-850 dark:text-[#f39c12] text-base uppercase tracking-tight flex items-center gap-2">
-                <Users size={18} className="text-amber-500" />
-                {language === 'zh' ? '各年级回收量分布' : 'Taburan Kitar Semula Mengikut Darjah'}
-              </h4>
-              <p className="text-[11px] text-stone-500 dark:text-stone-400 font-bold mt-1">
-                {language === 'zh' ? '实时对比各年级的回收贡献，了解班级参与度分布情况。' : 'Perbandingan sumbangan kitar semula antara darjah secara masa nyata.'}
-              </p>
-            </div>
-            
-            <div className="h-[300px] w-full mt-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={gradeStats}
-                  margin={{ top: 10, right: 10, left: 0, bottom: 20 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#888" opacity={0.2} />
-                  <XAxis 
-                    dataKey="gradeLabel" 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fontSize: 11, fontWeight: 'bold', fill: isDarkMode ? '#aaa' : '#666' }} 
-                    dy={10}
-                  />
-                  <YAxis 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fontSize: 11, fontWeight: 'bold', fill: isDarkMode ? '#aaa' : '#666' }}
-                    dx={-10}
-                  />
-                  <Tooltip 
-                    cursor={{ fill: 'rgba(16, 185, 129, 0.05)' }}
-                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontWeight: 'bold', fontSize: '12px' }}
-                    formatter={(value: number) => [`${value} KG`, language === 'zh' ? '总回收量' : 'Jumlah Kitar']}
-                  />
-                  <Bar dataKey="weight" radius={[6, 6, 0, 0]} maxBarSize={60}>
-                    {gradeStats.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'][index % 6]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5 items-stretch">
+          {(() => {
+            const schoolTotalCarbon = stats.grandTotal * 2.87;
+
+            return (
+              <div className="bg-white dark:bg-[#091526]/85 rounded-3xl p-5 shadow-md border border-stone-200/60 dark:border-[#d4af37]/35 flex flex-col justify-between animate-fade-in" id="realtime-carbon-benefit-panel">
+                <div className="flex flex-col gap-4">
+                  {/* Header section with live counter */}
+                  <div className="bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent dark:from-emerald-950/20 p-4 rounded-2xl border border-emerald-500/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div className="text-left">
+                      <div className="flex items-center gap-1.5">
+                        <span className="p-0.5 px-1.5 rounded-md bg-emerald-150 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-400 font-black text-[9px] uppercase tracking-wider">
+                          Live / Real-time
+                        </span>
+                        <h4 className="font-extrabold text-[#059669] dark:text-[#34d399] text-sm uppercase tracking-tight">
+                          {language === 'zh' ? '新廊华小绿色碳减排实时量' : 'Pengurangan Karbon SJKC Ladang Grisek'}
+                        </h4>
+                      </div>
+                      <p className="text-[10px] text-stone-500 dark:text-stone-400 font-semibold mt-0.5">
+                        {language === 'zh' ? '每回收 1 KG 废弃物折合减少约 2.87 KG 碳排放' : 'Setiap 1 KG dikitar semula mengurangkan 2.87 KG pelepasan karbon'}
+                      </p>
+                    </div>
+                    {/* Animated Real-time running tick up */}
+                    <div className="flex items-baseline gap-1 select-none font-sans shrink-0 bg-white dark:bg-stone-950 px-3 py-1.5 border border-stone-200/40 dark:border-stone-850 rounded-xl shadow-inner">
+                      <span className="text-2xl font-black font-mono tracking-tight text-emerald-600 dark:text-emerald-450 animate-pulse">
+                        {animatedCarbon.toFixed(2)}
+                      </span>
+                      <span className="text-[10px] font-black text-stone-550 dark:text-stone-350">kg CO₂e</span>
+                    </div>
+                  </div>
+
+                  {/* Educational Ecoliteracy conversions */}
+                  <div className="space-y-3 text-left">
+                    <div className="text-[10px] font-black text-emerald-700 dark:text-emerald-400 tracking-wider uppercase flex items-center gap-1.5 select-none">
+                      <Activity size={12} className="text-emerald-500" />
+                      <span>{language === 'zh' ? '💡 碳足迹换算为直观环保绿意效益' : '💡 Tafsiran Faedah Kelestarian Positif'}</span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      {/* Tree carbon sequestration equivalent */}
+                      <div className="bg-stone-50 dark:bg-stone-950/40 border border-stone-150 dark:border-stone-850 p-2.5 rounded-xl flex items-center gap-2 hover:scale-[1.01] transition-transform">
+                        <span className="text-2xl shrink-0">🌲</span>
+                        <div className="min-w-0">
+                          <div className="text-[9px] font-bold text-stone-400 leading-none">
+                            {language === 'zh' ? '相当于种植绿树' : 'Pokok Ditanam'}
+                          </div>
+                          <div className="text-sm font-black text-stone-800 dark:text-stone-150 font-mono mt-1 leading-none">
+                            {(schoolTotalCarbon / 22).toFixed(1)}{' '}
+                            <span className="text-[10px] font-bold text-stone-450">{language === 'zh' ? '棵' : 'batang'}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Auto miles avoided */}
+                      <div className="bg-stone-50 dark:bg-stone-950/40 border border-stone-150 dark:border-stone-850 p-2.5 rounded-xl flex items-center gap-2 hover:scale-[1.01] transition-transform">
+                        <span className="text-2xl shrink-0">🚗</span>
+                        <div className="min-w-0">
+                          <div className="text-[9px] font-bold text-stone-400 leading-none">
+                            {language === 'zh' ? '减少乘车公里' : 'KM Dikurangkan'}
+                          </div>
+                          <div className="text-sm font-black text-stone-800 dark:text-stone-150 font-mono mt-1 leading-none">
+                            {(schoolTotalCarbon / 0.12).toFixed(0)}{' '}
+                            <span className="text-[10px] font-bold text-stone-450">KM</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* KWh energy savings */}
+                      <div className="bg-stone-50 dark:bg-stone-950/40 border border-stone-150 dark:border-stone-850 p-2.5 rounded-xl flex items-center gap-2 hover:scale-[1.01] transition-transform">
+                        <span className="text-2xl shrink-0">💡</span>
+                        <div className="min-w-0">
+                          <div className="text-[9px] font-bold text-stone-400 leading-none">
+                            {language === 'zh' ? '节省家庭电量' : 'Tenaga Dijimat'}
+                          </div>
+                          <div className="text-sm font-black text-stone-800 dark:text-stone-150 font-mono mt-1 leading-none">
+                            {(schoolTotalCarbon / 0.52).toFixed(0)}{' '}
+                            <span className="text-[10px] font-bold text-stone-450">{language === 'zh' ? '度' : 'kWh'}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Water bottle saver */}
+                      <div className="bg-stone-50 dark:bg-stone-950/40 border border-stone-150 dark:border-stone-850 p-2.5 rounded-xl flex items-center gap-2 hover:scale-[1.01] transition-transform">
+                        <span className="text-2xl shrink-0">🥤</span>
+                        <div className="min-w-0">
+                          <div className="text-[9px] font-bold text-stone-400 leading-none">
+                            {language === 'zh' ? '塑料直饮水瓶' : 'Botol Plastik'}
+                          </div>
+                          <div className="text-sm font-black text-stone-800 dark:text-stone-150 font-mono mt-1 leading-none">
+                            {(stats.grandTotal * 12.5).toFixed(0)}{' '}
+                            <span className="text-[10px] font-bold text-stone-450">{language === 'zh' ? '个' : 'botol'}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="text-[9px] text-emerald-600 dark:text-emerald-400 font-extrabold italic bg-emerald-500/5 p-2 rounded-xl border border-emerald-500/10 text-center uppercase tracking-wide">
+                    {language === 'zh' ? '🍀 低碳在于生活中点滴小事的汇溪成海，低碳未来由我们做主！' : '🍀 Amalan sifar karbon bermula dengan langkah kecil. Kita menyelamatkan masa depan bumi!'}
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Grade Level Distribution Bar Chart alongside carbon benefit */}
+          <div className="bg-white dark:bg-[#091526]/85 rounded-3xl p-5 shadow-md border border-stone-200/60 dark:border-[#d4af37]/35 flex flex-col justify-between animate-fade-in">
+            <div className="flex flex-col gap-2.5 h-full justify-between">
+              <div className="text-left">
+                <h4 className="font-extrabold text-stone-850 dark:text-[#f39c12] text-sm uppercase tracking-tight flex items-center gap-2">
+                  <Users size={16} className="text-amber-500" />
+                  {language === 'zh' ? '各年级回收量分布' : 'Taburan Kitar Semula Mengikut Darjah'}
+                </h4>
+                <p className="text-[10px] text-stone-500 dark:text-stone-400 font-semibold mt-0.5">
+                  {language === 'zh' ? '实时对比各年级的回收贡献' : 'Perbandingan sumbangan kitar semula antara darjah.'}
+                </p>
+              </div>
+
+              <div className="h-[185px] w-full mt-2">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={gradeStats}
+                    margin={{ top: 5, right: 5, left: -25, bottom: 5 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#888" opacity={0.15} />
+                    <XAxis 
+                      dataKey="gradeLabel" 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{ fontSize: 9, fontWeight: 'bold', fill: isDarkMode ? '#aaa' : '#666' }} 
+                    />
+                    <YAxis 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{ fontSize: 9, fontWeight: 'bold', fill: isDarkMode ? '#aaa' : '#666' }}
+                    />
+                    <Tooltip 
+                      cursor={{ fill: 'rgba(16, 185, 129, 0.05)' }}
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontWeight: 'bold', fontSize: '11px' }}
+                      formatter={(value: number) => [`${value} KG`, language === 'zh' ? '总回收量' : 'Jumlah Kitar']}
+                    />
+                    <Bar dataKey="weight" radius={[4, 4, 0, 0]} maxBarSize={40}>
+                      {gradeStats.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'][index % 6]} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
         </div>
@@ -1068,7 +1068,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       {/* 5. Rankings bento container */}
       {dashboardViewMode === 'overall' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 select-none animate-fade-in">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 select-none animate-fade-in">
           <RankingCard
             title={language === 'zh' ? "班级榜 (低年级)" : "Kelas (Tahap 1)"}
             subTitle="Best Class (Tahap 1)"

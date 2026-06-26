@@ -338,6 +338,8 @@ export default function App() {
       if (entries.length === 0) setLoading(true);
       const res = await fetch(GOOGLE_SCRIPT_URL + '?action=getEntries');
       if (!res.ok) throw new Error("Fetch failed");
+      const contentType = res.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) throw new Error("Not JSON");
       const json = await res.json();
       if (!Array.isArray(json.data)) return;
 
@@ -368,6 +370,8 @@ export default function App() {
     try {
       const res = await fetch(GOOGLE_SCRIPT_URL + '?action=getStudents');
       if (!res.ok) throw new Error("Fetch failed");
+      const contentType = res.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) throw new Error("Not JSON");
       const json = await res.json();
       if (!Array.isArray(json.data)) return;
 
@@ -385,6 +389,8 @@ export default function App() {
     try {
       const res = await fetch(GOOGLE_SCRIPT_URL + '?action=getSettings');
       if (!res.ok) throw new Error("Fetch failed");
+      const contentType = res.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) throw new Error("Not JSON");
       const json = await res.json();
       if (json.data && json.data.nextRecycleDate !== undefined) {
         setNextRecycleDate(json.data.nextRecycleDate);
@@ -1013,59 +1019,59 @@ export default function App() {
               )}
 
               {/* Epic Lobby Header Card inspired by Honor of Kings */}
-              <div className="text-center py-12 md:py-20 mb-8 rounded-[2.5rem] relative overflow-hidden bg-gradient-to-b from-[#11203d] to-[#040c1a] border-2 border-[#D4AF37]/50 shadow-[0_15px_50px_rgba(212,175,55,0.2)] max-w-6xl mx-auto w-full">
+              <div className="text-center py-8 md:py-12 mb-5 rounded-[2rem] relative overflow-hidden bg-gradient-to-b from-[#11203d] to-[#040c1a] border-2 border-[#D4AF37]/50 shadow-[0_12px_40px_rgba(212,175,55,0.18)] max-w-6xl mx-auto w-full">
                 {/* Background magical radiant glow */}
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(251,191,36,0.15)_0%,transparent_75%)] pointer-events-none"></div>
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#FFD700] to-transparent"></div>
                 
                 {/* Honor Crest Emblem Container */}
-                <div className="relative inline-flex items-center justify-center mb-6 select-none">
+                <div className="relative inline-flex items-center justify-center mb-4 select-none">
                   <div className="absolute inset-0 bg-[#FFD700] blur-2xl opacity-25 rounded-full animate-pulse"></div>
-                  <div className="relative w-20 h-20 bg-gradient-to-b from-[#FFF0A5] via-[#D4AF37] to-[#8A640F] p-[2px] rounded-2xl shadow-[0_0_25px_rgba(212,175,55,0.5)]">
-                    <div className="w-full h-full bg-[#030a16] rounded-[14px] flex items-center justify-center border border-[#D4AF37]/40">
-                      <span className="text-4xl filter drop-shadow-[0_2px_10px_rgba(212,175,55,0.5)] transform hover:scale-110 transition-transform cursor-pointer leading-none">👑</span>
+                  <div className="relative w-16 h-16 bg-gradient-to-b from-[#FFF0A5] via-[#D4AF37] to-[#8A640F] p-[2px] rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.4)]">
+                    <div className="w-full h-full bg-[#030a16] rounded-[10px] flex items-center justify-center border border-[#D4AF37]/40">
+                      <span className="text-3xl filter drop-shadow-[0_2px_8px_rgba(212,175,55,0.4)] transform hover:scale-115 transition-transform cursor-pointer leading-none">👑</span>
                     </div>
                   </div>
                   {/* Surrounding star ornaments */}
-                  <div className="absolute -left-6 text-[#FFD700] text-sm animate-pulse">★</div>
-                  <div className="absolute -right-6 text-[#FFD700] text-sm animate-pulse animate-duration-1000">★</div>
+                  <div className="absolute -left-5 text-[#FFD700] text-xs animate-pulse">★</div>
+                  <div className="absolute -right-5 text-[#FFD700] text-xs animate-pulse animate-duration-1000">★</div>
                 </div>
 
                 {/* Shimmering Metallic Title */}
-                <h1 className="flex justify-center items-center gap-2 md:gap-3 text-3xl md:text-5xl font-black mb-4 tracking-[0.2em] uppercase font-space">
-                  <span className="bg-gradient-to-b from-white via-[#FFEAA5] to-[#D4AF37] bg-clip-text text-transparent drop-shadow-[0_4px_15px_rgba(0,0,0,0.8)]">
+                <h1 className="flex justify-center items-center gap-2 text-2xl md:text-4xl font-black mb-3 tracking-[0.15em] uppercase font-space">
+                  <span className="bg-gradient-to-b from-white via-[#FFEAA5] to-[#D4AF37] bg-clip-text text-transparent drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
                     {t('lobby_headline')}
                   </span>
                 </h1>
                 
                 {/* Decorative sub-banner with lines */}
-                <div className="inline-flex items-center justify-center gap-3.5 py-2 px-10 bg-gradient-to-r from-transparent via-amber-500/15 to-transparent border-y border-amber-500/25 max-w-xl mx-auto mb-10">
+                <div className="inline-flex items-center justify-center gap-3 py-1.5 px-8 bg-gradient-to-r from-transparent via-amber-500/15 to-transparent border-y border-amber-500/25 max-w-xl mx-auto mb-6">
                   <span className="text-amber-500 font-bold tracking-widest text-xs">✦</span>
-                  <p className="text-xs md:text-sm font-black text-[#E8C07D] tracking-[0.25em] uppercase font-space">{t('eco_league')}</p>
+                  <p className="text-xs font-black text-[#E8C07D] tracking-[0.2em] uppercase font-space">{t('eco_league')}</p>
                   <span className="text-amber-500 font-bold tracking-widest text-xs">✦</span>
                 </div>
 
                 {/* 2-Column Grid */}
-                <div className="w-full max-w-4xl mx-auto mb-4 text-center">
-                  <h3 className="text-xl md:text-2xl font-black text-white tracking-widest uppercase flex items-center justify-center gap-2 mb-6">
+                <div className="w-full max-w-4xl mx-auto mb-3 text-center">
+                  <h3 className="text-lg md:text-xl font-black text-white tracking-widest uppercase flex items-center justify-center gap-2 mb-4">
                     <Award className="text-[#16C784]" /> {language === 'zh' ? '学校荣誉' : 'KEBANGGAAN SEKOLAH'}
                   </h3>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto w-full px-4">
-                  <div className="neon-card p-6 rounded-3xl flex flex-col items-center justify-center text-center h-full relative overflow-hidden bg-[#071329]/40 border border-amber-500/20 shadow-lg">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto w-full px-4">
+                  <div className="neon-card p-4 rounded-2xl flex flex-col items-center justify-center text-center h-full relative overflow-hidden bg-[#071329]/40 border border-amber-500/20 shadow-md">
                     <div className="absolute inset-0 bg-gradient-to-br from-amber-500/[0.02] to-transparent pointer-events-none"></div>
-                    <div className="bg-white dark:bg-[#071329] p-4 rounded-xl mb-4 shadow-sm border border-slate-150 dark:border-amber-500/20 transition-all"><img src="https://www.imelc.my/images/logos/imelc-landing-header.png" alt="IMELC" className="h-12 object-contain" /></div>
-                    <h3 className="gold-gradient-text font-black text-xl mb-2 tracking-wide font-space">Penghargaan IMELC</h3>
-                    <p className="text-sm font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/30 mb-2">Finalis Kategori Sekolah Terbaik (2025)</p>
-                    <p className="text-xs text-stone-300 font-medium">Kategori Sekolah Terbaik Kitar Semula</p>
-                    <div className="flex gap-4 mt-3 text-xs font-mono font-black"><span className="text-amber-400">🏅 Ke-4 (2025)</span><span className="text-slate-300">🏅 Ke-6 (2024)</span></div>
+                    <div className="bg-white dark:bg-[#071329] p-3 rounded-lg mb-3 shadow-sm border border-slate-150 dark:border-amber-500/20 transition-all"><img src="https://www.imelc.my/images/logos/imelc-landing-header.png" alt="IMELC" className="h-10 object-contain" /></div>
+                    <h3 className="gold-gradient-text font-black text-lg mb-1 tracking-wide font-space">Penghargaan IMELC</h3>
+                    <p className="text-sm font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30 mb-1.5">Finalis Kategori Sekolah Terbaik (2025)</p>
+                    <p className="text-[10px] text-stone-300 font-medium">Kategori Sekolah Terbaik Kitar Semula</p>
+                    <div className="flex gap-3 mt-2 text-[10px] font-mono font-black"><span className="text-amber-400">🏅 Ke-4 (2025)</span><span className="text-slate-300">🏅 Ke-6 (2024)</span></div>
                   </div>
-                  <div className="neon-card p-6 rounded-3xl flex flex-col items-center justify-center text-center h-full relative overflow-hidden bg-[#071329]/40 border border-amber-500/20 shadow-lg">
+                  <div className="neon-card p-4 rounded-2xl flex flex-col items-center justify-center text-center h-full relative overflow-hidden bg-[#071329]/40 border border-amber-500/20 shadow-md">
                     <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/[0.02] to-transparent pointer-events-none"></div>
-                    <div className="bg-white dark:bg-[#071329] p-3 rounded-xl mb-4 shadow-sm border border-slate-150 dark:border-amber-500/20 transition-all"><img src="https://elestari.pendidikankelestarianjohor.edu.my/assets/logo/H.png" alt="JPNJ" className="h-14 object-contain" /></div>
-                    <h3 className="text-sky-400 font-black text-xl mb-2 tracking-wide font-space">Sekolah Showcase JPNJ</h3>
-                    <p className="text-sm font-bold text-stone-300 bg-[#0c1b35] px-3.5 py-1 rounded-full border border-[#1e3a66]/40 mb-2">Pendidikan Kelestarian</p>
-                    <p className="text-xs font-black text-emerald-400 font-mono tracking-wider">🏅 2024 & 2025</p>
+                    <div className="bg-white dark:bg-[#071329] p-2 rounded-lg mb-3 shadow-sm border border-slate-150 dark:border-amber-500/20 transition-all"><img src="https://elestari.pendidikankelestarianjohor.edu.my/assets/logo/H.png" alt="JPNJ" className="h-12 object-contain" /></div>
+                    <h3 className="text-sky-400 font-black text-lg mb-1 tracking-wide font-space">Sekolah Showcase JPNJ</h3>
+                    <p className="text-sm font-bold text-stone-300 bg-[#0c1b35] px-3 py-0.5 rounded-full border border-[#1e3a66]/40 mb-1.5">Pendidikan Kelestarian</p>
+                    <p className="text-[10px] font-black text-emerald-400 font-mono tracking-wider">🏅 2024 & 2025</p>
                   </div>
                 </div>
               </div>
@@ -1092,9 +1098,11 @@ export default function App() {
               )}
 
               {/* Trivia Section Below */}
-              <div className="max-w-4xl mx-auto w-full space-y-8">
-                <DailyEcoChallenge />
-                <DailyEcoTrivia />
+              <div className="max-w-5xl mx-auto w-full space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <DailyEcoChallenge />
+                  <DailyEcoTrivia />
+                </div>
                 
                 {/* MOBA Gamified Quiz Block */}
                 <MicroTriviaQuiz 

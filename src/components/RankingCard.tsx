@@ -95,44 +95,44 @@ export const RankingCard: React.FC<RankingCardProps> = ({ title, subTitle, data,
   return (
     <div
       className={`bg-stone-50/90 dark:bg-[#091526]/85 rounded-2xl border-2 border-[#d4af37]/35 dark:border-[#d4af37]/50 overflow-hidden flex flex-col shadow-[0_4px_25px_rgba(212,175,55,0.06)] dark:shadow-[0_0_20px_rgba(212,175,55,0.1)] transition-all duration-300 ${
-        isExpanded ? 'max-h-[500px] h-[500px]' : 'max-h-16 md:max-h-[480px] md:h-[480px] h-auto'
+        isExpanded ? 'max-h-[500px] h-[500px]' : 'max-h-14 md:max-h-[480px] md:h-[480px] h-auto'
       }`}
     >
       <div
-        className="px-5 py-3.5 border-b border-[#d4af37]/25 dark:border-[#d4af37]/45 bg-stone-100/60 dark:bg-[#0a182c]/90 flex justify-between items-center cursor-pointer md:cursor-default"
+        className="px-4 py-2.5 border-b border-[#d4af37]/25 dark:border-[#d4af37]/45 bg-stone-100/60 dark:bg-[#0a182c]/90 flex justify-between items-center cursor-pointer md:cursor-default"
         onClick={() => setIsExpanded(!isExpanded)}
         id={`rank-header-${title.replace(/\s+/g, '-').toLowerCase()}`}
       >
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2">
           <div className="p-1 px-1.5 bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 rounded-lg">
-            <Trophy size={16} />
+            <Trophy size={15} />
           </div>
           <div>
-            <h3 className="font-bold text-stone-800 dark:text-stone-200 text-sm md:text-base font-space">
+            <h3 className="font-extrabold text-stone-850 dark:text-stone-200 text-sm md:text-base font-space">
               {title}
             </h3>
-            <p className="text-[10px] uppercase font-bold tracking-wider text-stone-400 dark:text-stone-500 mt-0.5">
+            <p className="text-[9.5px] uppercase font-bold tracking-wider text-stone-400 dark:text-stone-500 mt-0.5">
               {subTitle}
             </p>
           </div>
         </div>
         <div className={`md:hidden text-stone-400 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>
-          <ChevronDown size={18} />
+          <ChevronDown size={16} />
         </div>
       </div>
 
-      <div className={`flex-1 overflow-y-auto p-3.5 custom-scrollbar select-none ${isExpanded ? 'block' : 'hidden md:block'}`}>
+      <div className={`flex-1 overflow-y-auto p-2.5 custom-scrollbar select-none ${isExpanded ? 'block' : 'hidden md:block'}`}>
         {data.length === 0 ? (
-          <div className="h-full py-12 flex flex-col items-center justify-center text-stone-300 dark:text-stone-705 gap-2">
-            <div className="w-12 h-12 bg-stone-50 dark:bg-stone-850 rounded-full flex items-center justify-center text-stone-400 dark:text-stone-600">
-              <Leaf size={22} />
+          <div className="h-full py-10 flex flex-col items-center justify-center text-stone-300 dark:text-stone-705 gap-1.5">
+            <div className="w-10 h-10 bg-stone-50 dark:bg-stone-850 rounded-full flex items-center justify-center text-stone-400 dark:text-stone-600">
+              <Leaf size={20} />
             </div>
             <span className="text-xs font-semibold text-stone-400 dark:text-stone-500">
               {t('rank_no_data')}
             </span>
           </div>
         ) : (
-          <ul className="space-y-2.5">
+          <ul className="space-y-1.5">
             {data.map((item, index) => {
               const rank = index + 1;
               const weightVal = Number(item.totalWeight) || 0;
@@ -161,27 +161,27 @@ export const RankingCard: React.FC<RankingCardProps> = ({ title, subTitle, data,
                     style={{ width: `${pct}%` }}
                   ></div>
 
-                  <div className="relative flex items-center justify-between p-3 rounded-xl border border-stone-200/50 dark:border-[#d4af37]/25 hover:border-amber-400 dark:hover:border-amber-400/60 bg-white/60 dark:bg-[#071120]/40 transition-all shadow-xs">
-                    <div className="flex items-center gap-3 overflow-hidden flex-1 mr-2">
-                      <div className="w-8 flex justify-center relative flex-shrink-0">
+                  <div className="relative flex items-center justify-between p-2 rounded-xl border border-stone-200/50 dark:border-[#d4af37]/25 hover:border-amber-400 dark:hover:border-amber-400/60 bg-white/60 dark:bg-[#071120]/40 transition-all shadow-xs">
+                    <div className="flex items-center gap-2 overflow-hidden flex-1 mr-1.5">
+                      <div className="w-7 flex justify-center relative flex-shrink-0">
                         <Medal rank={rank} />
                         {isFirst && (
-                          <div className="absolute -top-3.5 -right-2 text-amber-500 animate-bounce">
-                            <Award size={12} className="fill-amber-500" />
+                          <div className="absolute -top-3 -right-1.5 text-amber-500 animate-bounce">
+                            <Award size={10} className="fill-amber-500" />
                           </div>
                         )}
                       </div>
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className={`font-bold text-sm md:text-base tracking-tight ${isFirst ? 'text-amber-700 dark:text-amber-400' : 'text-stone-800 dark:text-stone-200'}`}>
+                          <span className={`font-black text-sm md:text-[14.5px] tracking-tight ${isFirst ? 'text-amber-800 dark:text-amber-400' : 'text-stone-850 dark:text-stone-200'}`}>
                             {type === 'class' ? item.className : renderName(item.name || '')}
                           </span>
 
                           {/* Class Tree */}
                           {classTree && (
                             <span
-                              className="text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-100/50 dark:border-emerald-900/20 flex items-center gap-1 shrink-0 cursor-help"
+                              className="text-[9.5px] font-bold bg-emerald-50 dark:bg-emerald-950/20 text-emerald-800 dark:text-emerald-400 px-1 py-0.5 rounded border border-emerald-100/50 dark:border-emerald-900/20 flex items-center gap-0.5 shrink-0 cursor-help"
                               title={classTree.label}
                             >
                               <span className="text-xs">{classTree.icon}</span>
@@ -191,7 +191,7 @@ export const RankingCard: React.FC<RankingCardProps> = ({ title, subTitle, data,
 
                           {/* Individual Star level */}
                           {indBadge && (
-                            <span className={`text-[9.5px] font-black px-1.5 py-0.5 rounded-md border border-stone-200/20 shrink-0 uppercase tracking-wide flex items-center gap-0.5 transition-all ${getRankBadgeStyles(indBadge)}`}>
+                            <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-md border border-stone-200/20 shrink-0 uppercase tracking-wide flex items-center gap-0.5 transition-all ${getRankBadgeStyles(indBadge)}`}>
                               {indBadge}
                             </span>
                           )}
@@ -199,7 +199,7 @@ export const RankingCard: React.FC<RankingCardProps> = ({ title, subTitle, data,
                           {/* Safe months combo fire indicator */}
                           {type === 'individual' && item.activeMonths && item.activeMonths >= 2 && (
                             <span
-                              className="text-[9px] font-bold bg-orange-50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400 px-1.5 py-0.5 rounded border border-orange-100 dark:border-orange-900/20 flex items-center gap-0.5 shrink-0"
+                              className="text-[8.5px] font-bold bg-orange-50 dark:bg-orange-950/20 text-orange-600 dark:text-orange-400 px-1 py-0.5 rounded border border-orange-100 dark:border-orange-900/20 flex items-center gap-0.5 shrink-0"
                               title={language === 'zh' ? `连续参与了 ${item.activeMonths} 个不同月份的环保回收活动` : `Menyertai ${item.activeMonths} bulan berturut-turut`}
                             >
                               🔥 x{item.activeMonths}
@@ -207,20 +207,20 @@ export const RankingCard: React.FC<RankingCardProps> = ({ title, subTitle, data,
                           )}
 
                           {type === 'class' && item.totalReward && item.totalReward > 0 && (
-                            <div className="flex items-center gap-0.5 text-[9px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20 px-1.5 py-0.5 rounded border border-emerald-100 dark:border-emerald-900/20 shrink-0">
+                            <div className="flex items-center gap-0.5 text-[8.5px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20 px-1 py-0.5 rounded border border-emerald-100 dark:border-emerald-900/20 shrink-0">
                               RM {item.totalReward}
                             </div>
                           )}
 
                           {type === 'class' && item.totalDeduction && item.totalDeduction > 0 && (
-                             <div className="flex items-center gap-0.5 text-[9px] font-bold text-rose-600 dark:text-rose-450 bg-rose-50/50 dark:bg-rose-950/20 px-1.5 py-0.5 rounded border border-rose-100 dark:border-rose-900/40 shrink-0" title={language === 'zh' ? "因为校内碳足迹产生的扣减重量" : "Potongan berat kerana jejak karbon"}>
-                               <Footprints size={10} /> -{item.totalDeduction.toFixed(0)}kg
+                             <div className="flex items-center gap-0.5 text-[8.5px] font-bold text-rose-600 dark:text-rose-450 bg-rose-50/50 dark:bg-rose-950/20 px-1 py-0.5 rounded border border-rose-100 dark:border-rose-900/40 shrink-0" title={language === 'zh' ? "因为校内碳足迹产生的扣减重量" : "Potongan berat kerana jejak karbon"}>
+                               <Footprints size={9} /> -{item.totalDeduction.toFixed(0)}kg
                              </div>
                           )}
                         </div>
 
                         {type === 'individual' && (
-                          <div className="text-xs text-stone-500 dark:text-stone-400 font-bold mt-0.5">
+                          <div className="text-[11px] text-stone-500 dark:text-stone-400 font-extrabold mt-0.5">
                             {item.className}
                           </div>
                         )}
@@ -228,14 +228,14 @@ export const RankingCard: React.FC<RankingCardProps> = ({ title, subTitle, data,
                     </div>
 
                     <div className="text-right flex-shrink-0 flex flex-col justify-center items-end relative z-10">
-                      <span className={`font-black text-base md:text-lg leading-none font-space ${isFirst ? 'text-amber-600 dark:text-amber-400 drop-shadow-[0_2px_6px_rgba(212,175,55,0.4)]' : 'text-emerald-650 dark:text-emerald-400'}`}>
+                      <span className={`font-black text-sm md:text-base leading-none font-space ${isFirst ? 'text-amber-605 dark:text-amber-400 drop-shadow-[0_2px_4px_rgba(212,175,55,0.3)]' : 'text-emerald-650 dark:text-emerald-450'}`}>
                         {weightVal.toFixed(1)}
-                        <span className="text-[9px] text-stone-400 dark:text-stone-500 uppercase font-bold tracking-widest ml-0.5">
+                        <span className="text-[8.5px] text-stone-400 dark:text-stone-500 uppercase font-bold tracking-widest ml-0.5">
                           kg
                         </span>
                       </span>
                       {weightVal > 0 && (
-                        <div className="text-[9px] font-bold text-sky-600 dark:text-sky-400 mt-1" title="Avoided Carbon Dioxide Equivalent">
+                        <div className="text-[8.5px] font-bold text-sky-600 dark:text-sky-400 mt-0.5" title="Avoided Carbon Dioxide Equivalent">
                           - {co2eSaved} CO₂e
                         </div>
                       )}
